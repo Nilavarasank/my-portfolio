@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nilavarasan K - Full-Stack Developer Portfolio</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style type="text/tailwindcss">
+        @layer base {
+            :root {
+                --main-text-color: #f0f0f0;
+                --secondary-text-color: #a0a0a0;
+                --primary-accent: #008cff; /* A vibrant blue */
+                --secondary-accent: #34b0ff;
+                --bg-primary: #0a0a1a; /* Dark universe color */
+                --bg-secondary: #1a1a2e; /* Slightly lighter dark color for sections */
+                --glass-bg: rgba(26, 26, 46, 0.6);
+            }
+            body {
+                @apply bg-[var(--bg-primary)] text-[var(--main-text-color)] font-inter;
+            }
+        }
+        .font-inter {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+
+    <style>
+        /* Custom Animated Cursor */
+        body {
+            cursor: none;
+            overflow-x: hidden;
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary-accent);
+        }
+
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--primary-accent);
+        }
+
+        .cursor-dot,
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+            transition: transform 0.2s ease-out, width 0.3s ease-out, height 0.3s ease-out, border-color 0.3s ease-out;
+        }
+
+        .cursor-hover {
+            transform: scale(1.5);
+            border-color: var(--secondary-accent);
+        }
+
+        /* Glassmorphism */
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-accent);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-accent);
+        }
+
+        /* GSAP reveal initial states */
+        .gsap-reveal {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .gsap-reveal-left {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+
+        .gsap-reveal-right {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+
+        /* Marquee Animation */
+        @keyframes marquee {
+            0% {
+                transform: translateX(0%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+        .animate-marquee {
+            animation: marquee 25s linear infinite;
+        }
+
+        /* Split Screen Loader */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100000;
+            display: flex;
+            pointer-events: none;
+        }
+        .loader-half {
+            width: 50%;
+            height: 100%;
+            background: var(--bg-primary);
+            position: relative;
+            transition: transform 1s ease-in-out;
+        }
+        .left-half {
+            transform-origin: right center;
+        }
+        .right-half {
+            transform-origin: left center;
+        }
+        .progress-counter {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--main-text-color);
+            font-size: 12rem;
+            font-weight: 200;
+            z-index: 100001;
+            line-height: 1;
+        }
+        @media (max-width: 640px) {
+            .progress-counter {
+                font-size: 5rem;
+            }
+        }
+        .site-content {
+            opacity: 0;
+            transition: opacity 0.6s ease-in;
+        }
+        .site-content.visible {
+            opacity: 1;
+        }
+
+        /* Portfolio Section Specifics */
+        .portfolio-section {
+            padding: 80px 0;
+            background-color: var(--bg-secondary);
+        }
+        .portfolio-header {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            margin-bottom: 64px;
+            gap: 24px;
+        }
+        @media (min-width: 1024px) {
+            .portfolio-header {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+        .rotating-text {
+            animation: rotate-svg 25s linear infinite;
+        }
+        @keyframes rotate-svg {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="antialiased font-inter">
+
+    <div class="loader-container" id="loader">
+        <div class="loader-half left-half" id="leftHalf"></div>
+        <div class="loader-half right-half" id="rightHalf"></div>
+        <div class="progress-counter" id="counter">0%</div>
+    </div>
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <div id="threejs-background" class="fixed top-0 left-0 w-full h-full -z-10"></div>
+
+    <div class="relative z-10 site-content" id="siteContent">
+
+        <header id="navbar" class="fixed top-0 left-0 w-full p-6 z-50 transition-all duration-300">
+            <div class="container mx-auto flex justify-between items-center glass-effect rounded-xl p-4">
+                <a href="#" class="text-2xl font-bold tracking-tighter hover:text-[var(--primary-accent)] transition-colors">NILAVARASAN</a>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#hero" class="text-[var(--secondary-text-color)] hover:text-[var(--main-text-color)] transition-colors">Home</a>
+                    <a href="#about" class="text-[var(--secondary-text-color)] hover:text-[var(--main-text-color)] transition-colors">About</a>
+                    <a href="#experience" class="text-[var(--secondary-text-color)] hover:text-[var(--main-text-color)] transition-colors">Experience</a>
+                    <a href="#certifications" class="text-[var(--secondary-text-color)] hover:text-[var(--main-text-color)] transition-colors">Certifications</a>
+                    <a href="#projects" class="text-[var(--secondary-text-color)] hover:text-[var(--main-text-color)] transition-colors">Projects</a>
+                    <a href="#education" class="text-[var(--secondary-text-color)] hover:text-[var(--main-text-color)] transition-colors">Education</a>
+                    <a href="#contact" class="text-[var(--secondary-text-color)] hover:text-[var(--main-text-color)] transition-colors">Contact</a>
+                </nav>
+                <a href="#contact" class="bg-[var(--primary-accent)] hover:bg-[var(--secondary-accent)] text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 hidden md:block">
+                    Let's Talk
+                </a>
+                <button id="mobile-menu-btn" class="md:hidden text-[var(--main-text-color)]">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="mobile-menu" class="hidden md:hidden mt-2 glass-effect rounded-lg p-4">
+                <a href="#hero" class="block text-[var(--secondary-text-color)] hover:text-[var(--main-text-color)] transition-colors py-2">Home</a>
+                <a href="#about" class="block text-[var(--secondary-text-color)] hover:text-[var(--main-text-color)] transition-colors py-2">About</a>
+                <a href="#experience" class="block text-[var(--secondary-text-color)] hover:text-[var(--main-text-color)] transition-colors py-2">Experience</a>
+                <a href="#certifications" class="block text-[var(--secondary-text-color)] hover:text-[var(--main-text-color)] transition-colors py-2">Certifications</a>
+                <a href="#projects" class="block text-[var(--secondary-text-color)] hover:text-[var(--main-text-color)] transition-colors py-2">Projects</a>
+                <a href="#education" class="block text-[var(--secondary-text-color)] hover:text-[var(--main-text-color)] transition-colors py-2">Education</a>
+                <a href="#contact" class="block text-[var(--secondary-text-color)] hover:text-[var(--main-text-color)] transition-colors py-2">Contact</a>
+            </div>
+        </header>
+
+        <main class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <section id="hero" class="min-h-[85vh] flex flex-col justify-center items-center text-center px-6 md:px-12 lg:px-24 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-blue-900 via-gray-900 to-black opacity-20 z-0 animate-[pulse_10s_cubic-bezier(0.4,0,0.6,1)_infinite]"></div>
+    <h1 class="text-5xl md:text-7xl font-extrabold mb-4 relative z-10 gsap-reveal">
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-[var(--primary-accent)] to-[var(--secondary-accent)]">
+            I'm NILAVARASAN K
+        </span>
+    </h1>
+    <h2 class="text-2xl md:text-4xl font-semibold text-[var(--main-text-color)] mb-4 relative z-10 gsap-reveal">
+        FULL-STACK Developer <br>Ready to Build Your Next Product.
+    </h2>
+    <p class="max-w-xl text-md md:text-lg text-[var(--secondary-text-color)] mb-8 leading-relaxed relative z-10 gsap-reveal">
+        I am a passionate Computer Science student and a full-stack developer with a solid foundation in Python, Data Structures, and Algorithms, experienced in designing scalable and efficient software solutions.
+    </p>
+    <a href="#contact" class="bg-[var(--primary-accent)] hover:bg-[var(--secondary-accent)] text-white font-semibold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 relative z-10 gsap-reveal">
+        Let's Connect
+    </a>
+    <div class="absolute inset-0 z-10 pointer-events-none">
+        <i class="fa-brands fa-html5 absolute top-36 left-16 text-5xl text-orange-600 animate-pulse"></i>
+        <i class="fa-brands fa-css3-alt absolute top-36 right-16 text-5xl text-blue-800 animate-pulse delay-75"></i>
+        <i class="fa-brands fa-js absolute bottom-32 left-20 text-5xl text-yellow-500 animate-pulse delay-150"></i>
+        <i class="fa-brands fa-react absolute top-1/4 left-1/4 text-5xl text-blue-600 animate-pulse delay-200"></i>
+        <i class="fa-brands fa-java absolute bottom-1/4 right-1/4 text-5xl text-red-700 animate-pulse delay-300"></i>
+        <i class="fa-solid fa-code absolute top-1/3 right-10 text-5xl text-gray-700 animate-pulse delay-400"></i>
+        <i class="fa-brands fa-python absolute bottom-20 right-10 text-5xl text-green-700 animate-pulse delay-500"></i>
+        <i class="fa-brands fa-node-js absolute bottom-1/3 left-10 text-5xl text-green-600 animate-pulse delay-600"></i>
+    </div>
+</section>
+            <section id="skills-marquee" class="py-12 overflow-x-hidden">
+                <div class="relative flex overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
+                    <div class="flex min-w-full shrink-0 items-center justify-around gap-12 animate-marquee">
+                        <p class="text-4xl font-bold text-[var(--secondary-accent)] opacity-70">Python</p>
+                        <p class="text-4xl font-bold text-[var(--secondary-accent)] opacity-70">Java</p>
+                        <p class="text-4xl font-bold text-[var(--secondary-accent)] opacity-70">C Programming</p>
+                        <p class="text-4xl font-bold text-[var(--secondary-accent)] opacity-70">Flask</p>
+                        <p class="text-4xl font-bold text-[var(--secondary-accent)] opacity-70">MySQL</p>
+                        <p class="text-4xl font-bold text-[var(--secondary-accent)] opacity-70">Git</p>
+                        <p class="text-4xl font-bold text-[var(--secondary-accent)] opacity-70">AWS</p>
+                        <p class="text-4xl font-bold text-[var(--secondary-accent)] opacity-70">Docker</p>
+                    </div>
+                    <div class="flex min-w-full shrink-0 items-center justify-around gap-12 animate-marquee" aria-hidden="true">
+                        <p class="text-4xl font-bold text-[var(--secondary-accent)] opacity-70">Python</p>
+                        <p class="text-4xl font-bold text-[var(--secondary-accent)] opacity-70">Java</p>
+                        <p class="text-4xl font-bold text-[var(--secondary-accent)] opacity-70">C Programming</p>
+                        <p class="text-4xl font-bold text-[var(--secondary-accent)] opacity-70">Flask</p>
+                        <p class="text-4xl font-bold text-[var(--secondary-accent)] opacity-70">MySQL</p>
+                        <p class="text-4xl font-bold text-[var(--secondary-accent)] opacity-70">Git</p>
+                        <p class="text-4xl font-bold text-[var(--secondary-accent)] opacity-70">AWS</p>
+                        <p class="text-4xl font-bold text-[var(--secondary-accent)] opacity-70">Docker</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="about" class="py-20 md:py-32">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div class="w-full md:w-[400px] md:h-[400px] mx-auto flex justify-center items-center rounded-2xl glass-effect p-4 order-1 md:order-1 gsap-reveal-left">
+                        <img src="https://github.com/Nilavarasank/certifications/blob/main/MYIMAGE.jpg" alt="My Coding Certificate">
+                    </div>
+                    <div class="order-2 md:order-2 px-8 gsap-reveal-right">
+                        <h3 class="text-5xl font-semibold mb-4"> FULL-STACK DEVELOPER</h3>
+                        <p class="text-lg text-[var(--secondary-text-color)] mb-4">
+                            A passionate Computer Science student and full-stack developer with a solid foundation in Python, Data Structures, and Algorithms, experienced in designing scalable and efficient software solutions.
+                        </p>
+                        <p class="text-lg text-[var(--secondary-text-color)]">
+                            I am a student at Government College of Engineering, Dharmapuri, currently pursuing my B.E. in Computer Science and Engineering.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="portfolio" class="portfolio-section">
+                <div class="container mx-auto px-4">
+                    <div class="portfolio-header">
+                        <div class="portfolio-text gsap-reveal-left">
+                            <span class="portfolio-subtitle text-[var(--secondary-accent)]">MY WORK</span>
+                            <h3 class="portfolio-title text-[var(--main-text-color)] text-5xl font-semibold mb-4">I build scalable solutions.</h3>
+                            <p class="portfolio-description text-[var(--secondary-text-color)]">
+                                As a passionate full-stack developer, I thrive on building efficient software solutions. My work, from engineering an Event Management System, to creating a responsive Music Wonder World web application, focuses on delivering seamless and scalable experiences. I'm constantly learning new technologies to produce the best crafted products.
+                            </p>
+                        </div>
+                        <div class="portfolio-circle gsap-reveal-right">
+                            <div class="circle-container relative w-56 h-56 flex items-center justify-center rounded-full border-2 border-[var(--primary-accent)]">
+                                <svg class="rotating-text absolute w-full h-full" viewBox="0 0 220 220">
+                                    <path id="curve" d="M 110 110, m -90, 0 a 90,90 0 1,1 180,0 a 90,90 0 1,1 -180,0"
+                                        fill="transparent" />
+                                    <text>
+                                        <textPath href="#curve" font-size="16" fill="var(--main-text-color)">
+                                            — Portfolio — Portfolio — Portfolio — Portfolio — Portfolio — Portfolio — Portfolio
+                                        </textPath>
+                                    </text>
+                                </svg>
+                                <div class="circle-content text-center">
+                                    <span class="circle-number text-6xl font-extrabold text-[var(--primary-accent)]">8.1</span>
+                                    <p class="circle-text text-[var(--main-text-color)] text-sm">CGPA<br/>(till Semester 6)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="resume" class="py-20 md:py-32 text-center bg-[var(--bg-secondary)] rounded-lg shadow-xl my-16">
+                <div class="gsap-reveal">
+                    <h2 class="text-4xl md:text-5xl font-bold tracking-tighter mb-4 text-[var(--primary-accent)]">My Resume</h2>
+                    <p class="max-w-2xl mx-auto text-lg text-[var(--secondary-text-color)] mb-8">
+                        View my detailed skills, professional history, and achievements in one document.
+                    </p>
+                    <a href="https://github.com/Nilavarasank/Resume/blob/main/Nilavarasank.Resume.pdf" target="_blank" class="inline-flex items-center space-x-3 px-8 py-4 rounded-full bg-[var(--primary-accent)] text-white font-bold text-xl hover:bg-[var(--secondary-accent)] transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Download PDF</span>
+                    </a>
+                </div>
+            </section>
+
+            <section id="experience" class="py-20 md:py-32">
+                <h2 class="text-4xl md:text-5xl font-bold tracking-tighter text-center mb-16 gsap-reveal">Internship & Experience</h2>
+                <div class="relative max-w-3xl mx-auto">
+                    <div class="absolute left-4 md:left-1/2 top-0 h-full w-0.5 bg-[var(--secondary-accent)] -translate-x-1/2"></div>
+                    <div class="experience-item relative md:grid md:grid-cols-2 md:gap-8 mb-12">
+                        <div></div>
+                        <div class="md:pl-8 relative">
+                            <div class="z-10 absolute -left-1 md:left-[-42px] top-1 bg-[var(--primary-accent)] rounded-full w-6 h-6 border-4 border-[var(--bg-primary)]"></div>
+                            <div class="glass-effect p-6 rounded-xl gsap-reveal-right">
+                                <p class="text-sm text-[var(--secondary-text-color)] mb-1">JULY-AUGUST-2025</p>
+                                <h3 class="text-xl font-bold text-[var(--main-text-color)] mb-2">FULL STACK DEVELOPMENT INTERN</h3>
+                                <p class="text-[var(--primary-accent)] font-semibold mb-3">TECHVOLT SOFTWAREPVT. LTD.</p>
+                                <p class="text-[var(--secondary-text-color)]">
+                                    Engineered a full-stack Event Management System using Flask, HTML, CSS, and MySQL to streamline event coordination and administration. Developed and integrated key functionalities, including secure user authentication and an admin dashboard.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="certifications" class="py-20 md:py-32">
+                <h2 class="text-4xl md:text-5xl font-bold tracking-tighter text-center mb-16 gsap-reveal">Certifications</h2>
+                <div class="max-w-3xl mx-auto space-y-8">
+                    <div class="certification-item glass-effect p-6 rounded-xl flex items-start space-x-6 gsap-reveal">
+                        <div class="bg-[var(--secondary-accent)]/20 text-[var(--primary-accent)] p-4 rounded-lg">
+                            <i class="fa-solid fa-certificate text-3xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-[var(--main-text-color)]">CLOUD COMPUTING</h3>
+                            <p class="text-[var(--primary-accent)] font-semibold mb-1">NPTEL-CERTIFICATION</p>
+                            <p class="text-sm text-[var(--secondary-text-color)] mb-2">Awarded on: JULY 2024</p>
+                            <a href="https://github.com/Nilavarasank/certifications/blob/main/certifications/Cloud%20Computing%20(1)%20(1)%20(1).pdf" target="_blank" class="text-[var(--secondary-text-color)] hover:text-[var(--primary-accent)] transition-colors text-sm underline">View Credential</a>
+                        </div>
+                    </div>
+                    <div class="certification-item glass-effect p-6 rounded-xl flex items-start space-x-6 gsap-reveal">
+                        <div class="bg-[var(--secondary-accent)]/20 text-[var(--primary-accent)] p-4 rounded-lg">
+                            <i class="fa-solid fa-certificate text-3xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-[var(--main-text-color)]">DataAnalytics</h3>
+                            <p class="text-[var(--primary-accent)] font-semibold mb-1">Google certification</p>
+                            <p class="text-sm text-[var(--secondary-text-color)] mb-2">Awarded on: November 2024</p>
+                            <a href="https://github.com/Nilavarasank/certifications/blob/main/certifications/google.%20certificate.pdf" target="_blank" class="text-[var(--secondary-text-color)] hover:text-[var(--primary-accent)] transition-colors text-sm underline">View Credential</a>
+                        </div>
+                    </div>
+                    <div class="certification-item glass-effect p-6 rounded-xl flex items-start space-x-6 gsap-reveal">
+                        <div class="bg-[var(--secondary-accent)]/20 text-[var(--primary-accent)] p-4 rounded-lg">
+                            <i class="fa-solid fa-certificate text-3xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-[var(--main-text-color)]"> Introduction to In
+dustry 4.0andIndustrialInternet ofThings</h3>
+                            <p class="text-[var(--primary-accent)] font-semibold mb-1">NPTEL certification</p>
+                            <p class="text-sm text-[var(--secondary-text-color)] mb-2">Awarded on: August 2025</p>
+                            <a href="https://github.com/Nilavarasank/certifications/blob/main/certifications/IIOT.pdf" target="_blank" class="text-[var(--secondary-text-color)] hover:text-[var(--primary-accent)] transition-colors text-sm underline">View Credential</a>
+                        </div>
+                    </div>
+                    <div class="certification-item glass-effect p-6 rounded-xl flex items-start space-x-6 gsap-reveal">
+                        <div class="bg-[var(--secondary-accent)]/20 text-[var(--primary-accent)] p-4 rounded-lg">
+                            <i class="fa-solid fa-certificate text-3xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-[var(--main-text-color)]">  Oracle
+ CloudInfrastructure Foundations</h3>
+                            <p class="text-[var(--primary-accent)] font-semibold mb-1"> Oracle University certification</p>
+                            <p class="text-sm text-[var(--secondary-text-color)] mb-2">Awarded on: December 2024</p>
+                            <a href="https://github.com/Nilavarasank/certifications/blob/main/certifications/nilavarasan.oracle.pdf" target="_blank" class="text-[var(--secondary-text-color)] hover:text-[var(--primary-accent)] transition-colors text-sm underline">View Credential</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="projects" class="py-20 md:py-32">
+                <h2 class="text-4xl md:text-5xl font-bold tracking-tighter text-center mb-16 gsap-reveal">Featured Projects</h2>
+                <div class="container mx-auto px-4">
+                    <div class="grid grid-cols-1 gap-8">
+                        <div class="project-card glass-effect rounded-2xl p-6 flex flex-col justify-between">
+                            <div>
+                                <div class="w-full h-2/3 bg-[var(--bg-secondary)] rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                                    <img src="music.png" alt="Screenshot of Music Wonder World project" class="w-full h-full object-cover rounded-lg">
+                                </div>
+                                <h3 class="text-2xl font-bold text-[var(--main-text-color)]">MUSIC WONDER WORLD</h3>
+                                <p class="text-[var(--secondary-text-color)]">Designed and engineered an interactive online music store using Flask, HTML, CSS, and SQL, handling product browsing, cart management, and secure checkout.</p>
+                            </div>
+                            <a href="https://github.com/Nilavarasank/Music-wonder-world" target="_blank" class="text-center bg-[var(--primary-accent)] text-white font-semibold py-2 px-4 rounded-lg hover:bg-[var(--secondary-accent)] transition-all duration-300 transform hover:scale-105 mt-4 block self-end">
+                                <i class="fab fa-github"></i> View on GitHub
+                            </a>
+                        </div>
+                        
+                        <div class="project-card glass-effect rounded-2xl p-6 flex flex-col justify-between">
+                            <div>
+                                <div class="w-full h-2/3 bg-[var(--bg-secondary)] rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                                    <img src="TO-DO.png" alt="Screenshot of the To-Do List project" class="w-full h-full object-cover rounded-lg">
+                                </div>
+                                <h3 class="text-2xl font-bold text-[var(--main-text-color)]">TO-DO LIST</h3>
+                                <p class="text-[var(--secondary-text-color)]">Developed a responsive web application using HTML5, CSS3, and Vanilla JavaScript to streamline daily task management, including core CRUD operations and dynamic DOM manipulation.</p>
+                            </div>
+                            <a href="https://github.com/your-github-username/to-do-list" target="_blank" class="text-center bg-[var(--primary-accent)] text-white font-semibold py-2 px-4 rounded-lg hover:bg-[var(--secondary-accent)] transition-all duration-300 transform hover:scale-105 mt-4 block self-end">
+                                <i class="fab fa-github"></i> View on GitHub
+                            </a>
+                        </div>
+                        
+                        <div class="project-card glass-effect rounded-2xl p-6 flex flex-col justify-between">
+                            <div>
+                                <div class="w-full h-2/3 bg-[var(--bg-secondary)] rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                                    <img src="event.png" alt="Screenshot of Event Management System project" class="w-full h-full object-cover rounded-lg">
+                                </div>
+                                <h3 class="text-2xl font-bold text-[var(--main-text-color)]">EVENT MANAGEMENT SYSTEM</h3>
+                                <p class="text-[var(--secondary-text-color)]">Engineered a full-stack system using Flask, HTML, CSS, and MySQL to streamline event coordination and administration. Developed and integrated key functionalities, including secure user authentication and an admin dashboard for participant management.</p>
+                            </div>
+                            <a href="https://github.com/your-github-username/event-management-system" target="_blank" class="text-center bg-[var(--primary-accent)] text-white font-semibold py-2 px-4 rounded-lg hover:bg-[var(--secondary-accent)] transition-all duration-300 transform hover:scale-105 mt-4 block self-end">
+                                <i class="fab fa-github"></i> View on GitHub
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="education" class="py-20 md:py-32">
+                <h2 class="text-4xl md:text-5xl font-bold tracking-tighter text-center mb-16 gsap-reveal">Education</h2>
+                <div class="max-w-3xl mx-auto space-y-8">
+                    <div class="education-item glass-effect p-6 rounded-xl flex items-start space-x-6 gsap-reveal">
+                        <div class="bg-[var(--secondary-accent)]/20 text-[var(--primary-accent)] p-4 rounded-lg">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v11.494m-9-5.494h18"></path><path d="M12 18a6 6 0 100-12 6 6 0 000 12z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm text-[var(--secondary-text-color)]">2022 - Present</p>
+                            <h3 class="text-xl font-bold text-[var(--main-text-color)]">B.E. in Computer Science and Engineering</h3>
+                            <p class="text-[var(--primary-accent)] font-semibold">Government College of Engineering-Dharmapuri</p>
+                        </div>
+                    </div>
+                    <div class="education-item glass-effect p-6 rounded-xl flex items-start space-x-6 gsap-reveal">
+                        <div class="bg-[var(--secondary-accent)]/20 text-[var(--primary-accent)] p-4 rounded-lg">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm text-[var(--secondary-text-color)]">2020 - 2021</p>
+                            <h3 class="text-xl font-bold text-[var(--main-text-color)]">HSC</h3>
+                            <p class="text-[var(--primary-accent)] font-semibold">Paramveer Banasingh Hr Sec School, Dharmapuri</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact" class="py-20 md:py-32 text-center">
+                <div class="gsap-reveal">
+                    <h2 class="text-4xl md:text-5xl font-bold tracking-tighter mb-4 text-[var(--main-text-color)]">Let's Build the Future</h2>
+                    <p class="max-w-2xl mx-auto text-lg text-[var(--secondary-text-color)] mb-8">
+                        Have a project in mind or just want to connect? I'm always open to discussing new ideas and
+                        opportunities.
+                    </p>
+                    <a href="mailto:nilavarasank65@gmail.com" class="text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[var(--primary-accent)] to-[var(--secondary-accent)] hover:from-[var(--secondary-accent)] hover:to-[var(--primary-accent)] transition-all duration-300">
+                        nilavarasank65@gmail.com
+                    </a>
+                    <div class="mt-8 flex flex-col justify-center items-center space-y-4 text-[var(--secondary-text-color)]">
+                        <a href="https://linkedin.com/in/nilavarasank" target="_blank" class="text-xl hover:text-[var(--primary-accent)] transition-colors">
+                            <i class="fab fa-linkedin"></i> linkedin.com/in/nilavarasank
+                        </a>
+                        <a href="https://github.com/Nilavarasank" target="_blank" class="text-xl hover:text-[var(--primary-accent)] transition-colors">
+                            <i class="fab fa-github"></i> github.com/Nilavarasank
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="py-8">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-[var(--secondary-text-color)]">
+                <p>&copy; 2025 Nilavarasan K. All rights reserved.</p>
+                <p class="text-sm mt-2">Designed & Built with professional elegance.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        // --- Split-screen loader logic ---
+        document.addEventListener('DOMContentLoaded', function () {
+            const loader = document.getElementById('loader');
+            const leftHalf = document.getElementById('leftHalf');
+            const rightHalf = document.getElementById('rightHalf');
+            const counter = document.getElementById('counter');
+            const siteContent = document.getElementById('siteContent');
+            let progress = 0;
+            const loadInterval = setInterval(() => {
+                progress += 1;
+                counter.textContent = `${progress}%`;
+                if (progress < 100) {
+                    const scale = 1 + (progress / 150);
+                    leftHalf.style.transform = `scaleX(${scale})`;
+                    rightHalf.style.transform = `scaleX(${scale})`;
+                }
+                if (progress >= 100) {
+                    clearInterval(loadInterval);
+                    leftHalf.style.transform = 'translateX(-100%)';
+                    rightHalf.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        siteContent.classList.add('visible');
+                    }, 800);
+                }
+            }, 10);
+        });
+    </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- GSAP Animations ---
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Navbar scroll effect
+            gsap.to("#navbar", {
+                scrollTrigger: { trigger: "body", start: "top top", end: "+=100", scrub: 1 },
+                padding: "1rem 1.5rem",
+                backgroundColor: "var(--glass-bg)",
+            });
+
+            // General section reveal animations
+            document.querySelectorAll('.gsap-reveal').forEach(el => {
+                gsap.fromTo(el, { opacity: 0, y: 50 }, {
+                    opacity: 1, y: 0, duration: 1, ease: "power3.out",
+                    scrollTrigger: { trigger: el, start: "top 85%", toggleActions: "play none none none" }
+                });
+            });
+            document.querySelectorAll('.gsap-reveal-left').forEach(el => {
+                gsap.fromTo(el, { opacity: 0, x: -50 }, {
+                    opacity: 1, x: 0, duration: 1, ease: "power3.out",
+                    scrollTrigger: { trigger: el, start: "top 85%", toggleActions: "play none none none" }
+                });
+            });
+            document.querySelectorAll('.gsap-reveal-right').forEach(el => {
+                gsap.fromTo(el, { opacity: 0, x: 50 }, {
+                    opacity: 1, x: 0, duration: 1, ease: "power3.out",
+                    scrollTrigger: { trigger: el, start: "top 85%", toggleActions: "play none none none" }
+                });
+            });
+
+            // --- Custom Cursor ---
+            const cursorDot = document.querySelector('.cursor-dot');
+            const cursorOutline = document.querySelector('.cursor-outline');
+            gsap.set(cursorDot, { xPercent: -50, yPercent: -50 });
+            gsap.set(cursorOutline, { xPercent: -50, yPercent: -50 });
+            window.addEventListener('mousemove', e => {
+                gsap.to(cursorDot, { duration: 0.2, x: e.clientX, y: e.clientY });
+                gsap.to(cursorOutline, { duration: 0.6, x: e.clientX, y: e.clientY, ease: "power2.out" });
+            });
+            document.querySelectorAll('a, button, .project-card, .glass-effect').forEach(el => {
+                el.addEventListener('mouseenter', () => cursorOutline.classList.add('cursor-hover'));
+                el.addEventListener('mouseleave', () => cursorOutline.classList.remove('cursor-hover'));
+            });
+
+            // --- Three.js starfield background ---
+            let backgroundScene, backgroundCamera, backgroundRenderer, particles;
+            const backgroundContainer = document.getElementById('threejs-background');
+            const backgroundMouse = new THREE.Vector2();
+
+            function initThreeJSBackground() {
+                backgroundScene = new THREE.Scene();
+                backgroundCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
+                backgroundCamera.position.z = 1000;
+                
+                const geometry = new THREE.BufferGeometry();
+                const vertices = [];
+                const numParticles = 5000;
+                for (let i = 0; i < numParticles; i++) {
+                    const x = Math.random() * 2000 - 1000;
+                    const y = Math.random() * 2000 - 1000;
+                    const z = Math.random() * 2000 - 1000;
+                    vertices.push(x, y, z);
+                }
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                const material = new THREE.PointsMaterial({ color: 0xe0e0e0, size: 2, transparent: true, opacity: 0.6 });
+                particles = new THREE.Points(geometry, material);
+                backgroundScene.add(particles);
+
+                backgroundRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                backgroundRenderer.setSize(window.innerWidth, window.innerHeight);
+                backgroundRenderer.setClearColor(0x0a0a1a, 1);
+                backgroundContainer.appendChild(backgroundRenderer.domElement);
+                document.addEventListener('mousemove', onDocumentMouseMove, false);
+                window.addEventListener('resize', onWindowResize, false);
+            }
+
+            function onWindowResize() {
+                backgroundCamera.aspect = window.innerWidth / window.innerHeight;
+                backgroundCamera.updateProjectionMatrix();
+                backgroundRenderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            function onDocumentMouseMove(event) {
+                backgroundMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                backgroundMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            }
+
+            function animateThreeJSBackground() {
+                requestAnimationFrame(animateThreeJSBackground);
+                const time = Date.now() * 0.00005;
+                backgroundCamera.position.x += (backgroundMouse.x * 200 - backgroundCamera.position.x) * 0.05;
+                backgroundCamera.position.y += (-backgroundMouse.y * 200 - backgroundCamera.position.y) * 0.05;
+                backgroundCamera.lookAt(backgroundScene.position);
+                particles.rotation.x = time * 0.2;
+                particles.rotation.y = time * 0.5;
+                backgroundRenderer.render(backgroundScene, backgroundCamera);
+            }
+
+            initThreeJSBackground();
+            animateThreeJSBackground();
+
+            // --- Other Functionality ---
+            // Mobile menu
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                document.body.style.overflow = mobileMenu.classList.contains('hidden') ? '' : 'hidden';
+            });
+        });
+    </script>
+</body>
+</html>
